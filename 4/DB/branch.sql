@@ -1,0 +1,2 @@
+INSERT INTO public.branch (branch_id, name, address, city, state, zip) VALUES (1, 'electronics', 'Citadale Street', 'City 17', '17', '08037')
+INSERT INTO public.branch (branch_id, name, address, city, state, zip) VALUES (2, 'textile', '29 Arlington Avenue', 'London', 'JS', '30134')

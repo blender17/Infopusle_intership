@@ -1,0 +1,6 @@
+INSERT INTO public.customer (cust_id, fed_id, cust_type_cd, address, city, state, postal_code) VALUES (1, 'P69399733', 'I', '229 Retreat Avenue', 'THE SEA RANCH', 'California', '07614')
+INSERT INTO public.customer (cust_id, fed_id, cust_type_cd, address, city, state, postal_code) VALUES (2, 'P58849678', 'L', '3480 Blue Spruce Lane', 'PENSACOLA', 'Florida', '86627')
+INSERT INTO public.customer (cust_id, fed_id, cust_type_cd, address, city, state, postal_code) VALUES (3, 'P31089518', 'I', '524 Brooke Street', 'Houston', 'Texas', '00248')
+INSERT INTO public.customer (cust_id, fed_id, cust_type_cd, address, city, state, postal_code) VALUES (4, 'P32863203', 'I', '841 Arbutus Drive', 'Miami Springs', 'Florida', '38062')
+INSERT INTO public.customer (cust_id, fed_id, cust_type_cd, address, city, state, postal_code) VALUES (5, 'P74807985', 'J', '437 Petunia Way', 'Birmingham', 'Alabama', '19109')
+INSERT INTO public.customer (cust_id, fed_id, cust_type_cd, address, city, state, postal_code) VALUES (6, 'P62207707', 'I', '842 Ashwood Drive', 'Omaha', 'Nebraska', '49498')

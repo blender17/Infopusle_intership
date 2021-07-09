@@ -1,0 +1,5 @@
+INSERT INTO public.product (product_cd, name, product_type_cd, date_offered, date_retired) VALUES ('5993', 'Towel', '716', '2021-07-01', '2021-07-02')
+INSERT INTO public.product (product_cd, name, product_type_cd, date_offered, date_retired) VALUES ('4288', 'MCU', '401', '2021-07-03', '2021-07-04')
+INSERT INTO public.product (product_cd, name, product_type_cd, date_offered, date_retired) VALUES ('7842', 'Trousers', '657', '2021-07-05', '2021-07-11')
+INSERT INTO public.product (product_cd, name, product_type_cd, date_offered, date_retired) VALUES ('9025', 'Network card', '922', '2021-03-02', '2021-07-01')
+INSERT INTO public.product (product_cd, name, product_type_cd, date_offered, date_retired) VALUES ('8856', 'Shirt', '657', '2021-01-13', '2021-02-04')
