@@ -1,11 +1,9 @@
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
+import java.lang.reflect.*;
 import java.util.Arrays;
 
 public class Main {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws InvocationTargetException, InstantiationException, IllegalAccessException, NoSuchFieldException {
 
 		Class genericClass = GenericClass.class;
 
@@ -61,6 +59,18 @@ public class Main {
 		Arrays.stream(genericNumberClass.getDeclaredFields()).forEach(field -> {
 			System.out.print(field.getName() + " " + field.getType() + ", ");
 		});
+
+		System.out.println("\n");
+
+		Constructor<GenericNumberClass> constructor = genericNumberClass.getDeclaredConstructors()[0];
+		constructor.setAccessible(true);
+		GenericNumberClass numberClass = constructor.newInstance();
+
+		Field field = numberClass.getClass().getDeclaredField("y");
+		field.setAccessible(true);
+		System.out.println(field.get(numberClass));
+		field.set(numberClass, 10);
+		System.out.println(field.get(numberClass));
 
 	}
 

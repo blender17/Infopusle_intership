@@ -6,6 +6,8 @@ public class GenericNumberClass<T extends Number> extends GenericClass<T>{
 
 	protected int x;
 
+	private int y;
+
 	private GenericNumberClass() {}
 
 	public GenericNumberClass(List<? extends T> list) {
