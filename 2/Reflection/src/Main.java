@@ -71,7 +71,6 @@ public class Main {
 		System.out.println(field.get(numberClass));
 		field.set(numberClass, 10);
 		System.out.println(field.get(numberClass));
-
 	}
 
 }
