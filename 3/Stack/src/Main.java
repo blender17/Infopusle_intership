@@ -10,6 +10,18 @@ public class Main {
 		while (!integerStack.isEmpty()) {
 			System.out.println(integerStack.pop());
 		}
+
+		ArrayStack<Integer> arrayStack = new ArrayStack<>();
+
+		System.out.println("\n");
+
+		for (int i = 0; i < 10; i++) {
+			arrayStack.push(i);
+		}
+
+		while (!arrayStack.isEmpty()) {
+			System.out.println(arrayStack.pop());
+		}
 	}
 
 }

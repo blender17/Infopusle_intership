@@ -10,6 +10,17 @@ public class Main {
 		while (!integerQueue.isEmpty()) {
 			System.out.println(integerQueue.pop());
 		}
+
+		System.out.println("\n");
+
+		ArrayQueue<Integer> arrayQueue = new ArrayQueue<>();
+		for (int i = 1; i < 10; i++) {
+			arrayQueue.push(i);
+		}
+
+		while (!arrayQueue.isEmpty()) {
+			System.out.println(arrayQueue.pop());
+		}
 	}
 
 }
