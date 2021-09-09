@@ -1,8 +1,6 @@
 import lombok.Data;
 import lombok.ToString;
 
-import java.time.LocalDate;
-
 @Data
 @ToString
 public class StudentDTO {
@@ -12,6 +10,5 @@ public class StudentDTO {
 	@Column("middleName")
 	private String mName;
 	private String gender;
-	private LocalDate birthday;
 
 }
