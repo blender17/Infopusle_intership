@@ -12,17 +12,63 @@ public class JSONParser {
 		String[] strPairs = splitByComma(JsonString);
 		JSONObject obj = new JSONObject();
 		for (String pair : strPairs) {
-			obj.addElement(createJSONElem(pair));
+			JSONElement element = createJSONElem(pair);
+			obj.addElement(element);
 		}
 		return obj;
 	}
 
+	/*returns array with 2 values:
+	1 value - arrays quantity
+	2 value - objects quantity
+	(negative value means incorrect json)*/
+	public static int[] countArraysAndObjects(String json) {
+		int[] count = new int[2];
+		int objectOpen = 0;
+		int objectClose = 0;
+		int arrayOpen = 0;
+		int arrayClose = 0;
+		char[] jsonArray = innerText(json).replaceAll("\\s+", "").toCharArray();
+		for (int i = 0; i < jsonArray.length; i++) {
+			if (jsonArray[i] == ':') {
+				i++;
+				if (jsonArray[i] == '{') {
+					objectOpen++;
+				}
+			}
+			switch (jsonArray[i]) {
+				case '}' -> objectClose++;
+				case '[' -> arrayOpen++;
+				case ']' -> arrayClose++;
+			}
+		}
+		if ((arrayOpen - arrayClose) != 0) {
+			count[0] = -1;
+		} else {
+			count[0] = arrayOpen;
+		}
+		if ((objectOpen - objectClose) != 0) {
+			count[1] = -1;
+		} else {
+			count[1] = objectOpen;
+		}
+		return count;
+	}
+
 	private static JSONElement createJSONElem(String jsonElem) throws ParseException {
 		int index = getColonIndex(jsonElem);
-		String key = innerText(getValue(jsonElem.substring(0, index)));
-		index++;
-		String value = getValue(jsonElem.substring(index));
-		Token token = createToken(value);
+		Token token;
+		String value;
+		String key = null;
+		if (index != -1) {
+			 key = innerText(getValue(jsonElem.substring(0, index)));
+			index++;
+			value = getValue(jsonElem.substring(index));
+			token = createToken(value);
+		} else {
+			 token = createToken(jsonElem);
+			 value = jsonElem;
+		}
 		switch (token.type) {
 			case INTEGER -> {
 				return new JSONElement(key, Long.parseLong(token.value));
@@ -49,7 +95,8 @@ public class JSONParser {
 				JSONObject[] objects = new JSONObject[count];
 				for (int n = 0; n < count; n++) {
 					netobj = getValue(textobjs[n]);
-					objects[n] = createObject(innerText(netobj));
+//					objects[n] = createObject(innerText(netobj));
+					objects[n] = createObject(netobj);
 				}
 				return new JSONElement(key, objects);
 			}
@@ -60,7 +107,7 @@ public class JSONParser {
 		throw new ParseException("JSON parse exception", jsonElem);
 	}
 
-	private static int getColonIndex(String jsonString) throws ParseException {
+	private static int getColonIndex(String jsonString) {
 		char chr;
 		int index = 0;
 		while (index < jsonString.length()) {
@@ -70,7 +117,7 @@ public class JSONParser {
 			}
 			index++;
 		}
-		throw new ParseException("JSON parse exception", jsonString);
+		return -1;
 	}
 
 	private static Token createToken(String jsonString) throws ParseException {
