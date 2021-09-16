@@ -8,6 +8,9 @@ import java.util.Arrays;
 public class IPValidator implements ConstraintValidator<IP, String> {
 	@Override
 	public boolean isValid(String s, ConstraintValidatorContext constraintValidatorContext) {
+		if (s == null) {
+			return true;
+		}
 		if (s.matches("^(\\d{1,3}\\.){3}\\d{1,3}$")) {
 			/*return Arrays.stream(s.split("\\."))
 					.mapToInt(Integer::parseInt)
