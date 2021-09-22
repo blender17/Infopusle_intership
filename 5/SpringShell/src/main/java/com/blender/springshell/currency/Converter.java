@@ -19,25 +19,6 @@ public class Converter {
 		this.currencies = currencies;
 	}
 
-	/*public double convert(String data) {
-		String[] values = StringParser.parse(data, currencies);
-		return convert(values);
-	}
-
-	public double convert(String[] values) {
-		Currency cur1 = currencies.stream()
-				.filter(currency -> currency.getCurrencyCode().equalsIgnoreCase(values[1]))
-				.findFirst()
-				.orElseThrow();
-		Currency cur2 = currencies.stream()
-				.filter(currency -> currency.getCurrencyCode().equalsIgnoreCase(values[2]))
-				.findFirst()
-				.orElseThrow();
-		double amount = Double.parseDouble(values[0]);
-
-		return convert(cur1, cur2, amount);
-	}*/
-
 	public double convert(String cur1, String cur2, double amount) {
 		Currency currency1 = currencies.stream()
 				.filter(currency -> currency.getCurrencyCode().equalsIgnoreCase(cur1))

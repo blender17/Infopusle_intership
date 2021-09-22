@@ -1,20 +1,17 @@
 package com.blender.springshell.controller;
 
-import com.blender.springshell.currency.Converter;
-import com.blender.springshell.currency.Currency;
 import com.blender.springshell.service.CurrencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
 import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
-import java.util.List;
+import java.time.LocalDate;
 
 @ShellComponent
 public class ShellController {
 
 	private final CurrencyService currencyService;
-	private final Converter converter;
 
 	private String cur1;
 	private String cur2;
@@ -22,24 +19,14 @@ public class ShellController {
 	private double amount;
 
 	@Autowired
-	public ShellController(CurrencyService currencyService, Converter converter) {
+	public ShellController(CurrencyService currencyService) {
 		this.currencyService = currencyService;
-		this.converter = converter;
 	}
 
 	@ShellMethod(key = "convert", value = "convert 20 [--from] USD [--to] UAH [--date] yyyy.MM.dd (/ or - also allowed)")
 	public String convert(double amount, @ShellOption("--from")  String cur1, @ShellOption("--to")
 			String cur2, @ShellOption(value = "--date", defaultValue = "")  String date) {
-
-		List<Currency> currencies = null;
-		if (date.isEmpty()) {
-			currencies = currencyService.getExchangeRate();
-		} else {
-			currencies = currencyService.getExchangeRate(date);
-		}
-		converter.setCurrencies(currencies);
-		double result = converter.convert(cur1, cur2, amount);
-		return amount + " " + cur1.toUpperCase() + " in " + cur2.toUpperCase() + " is " + result + " on " + currencies.get(0).getExchangeDate();
+		return currencyService.convert(cur1, cur2, amount, date);
 	}
 
 	@ShellMethod(key = "from", value = "currency code that converting from")
@@ -64,20 +51,18 @@ public class ShellController {
 
 	@ShellMethod(key = "convertp", value = "pre-configured convert")
 	public String convert() {
-		List<Currency> currencies = null;
-		if (date.isEmpty()) {
-			currencies = currencyService.getExchangeRate();
-		} else {
-			currencies = currencyService.getExchangeRate(date);
-		}
-		converter.setCurrencies(currencies);
-		double result = converter.convert(cur1, cur2, amount);
-		return amount + " " + cur1 + " in " + cur2 + " is " + result + " on " + currencies.get(0).getExchangeDate();
+		return currencyService.convert(cur1, cur2, amount, date);
+	}
+
+	@ShellMethod(key = "statistic", value = "calculates statistic on currency between --start and --end dates yyyy.MM.dd (/ or - also allowed)")
+	public String statistic(String cur, @ShellOption("--start")  String startDate, @ShellOption(value = "--end", defaultValue = "") String endDate) {
+		String end = endDate.isEmpty() ? LocalDate.now().toString() : endDate;
+		return cur.toUpperCase() + " statistic between " + startDate + " and " + end + "\n"
+				+ currencyService.getStatistic(cur, startDate, endDate);
 	}
 
 	@ShellMethod(key = "currencies", value = "Print list of currency codes and names")
 	public String getCurrency() {
-		List<Currency> currencies = currencyService.getExchangeRate();
 		return currencyService.getCurrenciesList();
 	}
 
@@ -85,5 +70,4 @@ public class ShellController {
 	public void close() {
 		System.exit(0);
 	}
-
 }
