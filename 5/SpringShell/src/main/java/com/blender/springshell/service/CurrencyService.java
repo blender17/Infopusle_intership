@@ -3,6 +3,7 @@ package com.blender.springshell.service;
 import com.blender.springshell.currency.Converter;
 import com.blender.springshell.currency.Currency;
 import com.blender.springshell.currency.Statistic;
+import com.blender.springshell.dao.CurrencyDAO;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,19 +26,15 @@ public class CurrencyService {
 	private final ObjectMapper objectMapper;
 	private final Statistic statistic;
 	private final Converter converter;
-	private Set<Currency> currencies;
+	private final CurrencyDAO currencyDAO;
 
 	@Autowired
-	public CurrencyService(Statistic statistic, Converter converter) {
+	public CurrencyService(Statistic statistic, Converter converter, CurrencyDAO currencyDAO) {
 		this.statistic = statistic;
 		this.converter = converter;
+		this.currencyDAO = currencyDAO;
 		objectMapper = new ObjectMapper();
 		objectMapper.findAndRegisterModules();
-		currencies = new HashSet<>();
-		Currency uah = new Currency();
-		uah.setCurrencyCode("UAH");
-		uah.setCurrencyName("Гривня");
-		currencies.add(uah);
 	}
 
 	public String convert(String cur1, String cur2, double amount , String date) {
@@ -55,37 +52,10 @@ public class CurrencyService {
 			DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
 			localDate = LocalDate.parse(date.replaceAll("[-/]", "."), dateTimeFormatter);
 		}
-
-		LocalDate finalLocalDate = localDate;
-		List<Currency> currencyList = currencies.stream()
-				.filter(currency -> currency.getExchangeDate()
-				.equals(finalLocalDate))
-				.collect(Collectors.toList());
-
-		if (currencyList.isEmpty()) {
-			updateCurrencies(localDate);
-			currencyList = currencies.stream()
-					.filter(currency -> currency.getExchangeDate()
-					.equals(finalLocalDate))
-					.collect(Collectors.toList());
-		}
-
-		return currencyList;
+		return currencyDAO.getCurrenciesByDate(localDate);
 	}
 
-	private void updateCurrencies(LocalDate localDate) {
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
-		try {
-			List<Currency> currencyList = objectMapper
-					.readValue(new URL("https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date="
-							+ localDate.format(formatter)
-							+ "&json"),
-							new TypeReference<>() {});
-			currencies.addAll(currencyList);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
+
 
 	public String getStatistic(String cur, String startDate, String endDate) {
 		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy.MM.dd");
@@ -96,30 +66,7 @@ public class CurrencyService {
 		} else {
 			end = LocalDate.parse(endDate.replaceAll("[-/]", "."), dateTimeFormatter).plusDays(1);
 		}
-
-		List<Currency> currencyList = new ArrayList<>((int) Duration.between(start.atStartOfDay(), end.atStartOfDay()).toDays());
-		LocalDate pointer = start;
-
-		while (pointer.isBefore(end)) {
-			LocalDate finalPointer = pointer;
-			Currency currency = currencies.stream()
-					.filter(crr -> crr.getCurrencyName().equalsIgnoreCase(cur)
-							&& crr.getExchangeDate().equals(finalPointer))
-					.findAny()
-					.orElse(null);
-			if (currency == null) {
-				updateCurrencies(pointer);
-				currency = currencies.stream()
-						.filter(crr -> crr.getCurrencyCode().equalsIgnoreCase(cur)
-								&& crr.getExchangeDate().equals(finalPointer))
-						.findAny()
-						.orElse(null);
-			}
-			currencyList.add(currency);
-
-			pointer = pointer.plusDays(1);
-		}
-		return buildStatisticString(currencyList);
+		return buildStatisticString(currencyDAO.getCurrenciesBetweenDate(start, end, cur));
 	}
 
 	private String buildStatisticString(List<Currency> currencyList) {
@@ -130,16 +77,8 @@ public class CurrencyService {
 	}
 
 	public String getCurrenciesList() {
-		if (currencies != null && currencies.isEmpty()) {
-			try {
-				currencies = objectMapper.readValue(new URL("https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json")
-						, new TypeReference<>() {});
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
+		List<Currency> currencies = currencyDAO.getCurrenciesByDate(LocalDate.now());
 		StringBuilder builder = new StringBuilder();
-		assert currencies != null;
 		for (Currency currency : currencies) {
 			builder.append(currency.getCurrencyCode());
 			builder.append(" ");
