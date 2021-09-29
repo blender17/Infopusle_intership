@@ -1,12 +1,10 @@
 package com.blender.springshell.dao;
 
+import com.blender.springshell.currency.Currency;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
-
-import com.blender.springshell.currency.Currency;
 
 import java.io.IOException;
 import java.net.URL;
@@ -22,32 +20,27 @@ import java.util.stream.Collectors;
 @Component
 public class CurrencyDAO {
 
-    private ObjectMapper mapper;
-    private Set<Currency> currencies;
+    private final ObjectMapper mapper;
+    private final Set<Currency> currencies;
 
     @Autowired
     public CurrencyDAO() {
         mapper = new ObjectMapper();
         mapper.findAndRegisterModules();
         currencies = new HashSet<>();
-        Currency uah = new Currency();
-        uah.setCurrencyCode("UAH");
-        uah.setCurrencyName("Гривня");
-        currencies.add(uah);
     }
 
     public List<Currency> getCurrenciesByDate(LocalDate localDate) {
-        LocalDate finalLocalDate = localDate;
         List<Currency> currencyList = currencies.stream()
                 .filter(currency -> currency.getExchangeDate()
-                        .equals(finalLocalDate))
+                        .equals(localDate))
                 .collect(Collectors.toList());
 
         if (currencyList.isEmpty()) {
             updateCurrencies(localDate);
             currencyList = currencies.stream()
                     .filter(currency -> currency.getExchangeDate()
-                            .equals(finalLocalDate))
+                            .equals(localDate))
                     .collect(Collectors.toList());
         }
         return currencyList;
@@ -79,6 +72,11 @@ public class CurrencyDAO {
     }
 
     private void updateCurrencies(LocalDate localDate) {
+        Currency uah = new Currency();
+        uah.setCurrencyCode("UAH");
+        uah.setCurrencyName("Гривня");
+        uah.setExchangeDate(localDate);
+        currencies.add(uah);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         try {
             List<Currency> currencyList = mapper

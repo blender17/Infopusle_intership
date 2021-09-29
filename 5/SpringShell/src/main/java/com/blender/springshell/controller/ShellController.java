@@ -1,5 +1,6 @@
 package com.blender.springshell.controller;
 
+import com.blender.springshell.currency.Currency;
 import com.blender.springshell.service.CurrencyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.shell.standard.ShellComponent;
@@ -7,6 +8,8 @@ import org.springframework.shell.standard.ShellMethod;
 import org.springframework.shell.standard.ShellOption;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 
 @ShellComponent
 public class ShellController {
@@ -26,7 +29,9 @@ public class ShellController {
 	@ShellMethod(key = "convert", value = "convert 20 [--from] USD [--to] UAH [--date] yyyy.MM.dd (/ or - also allowed)")
 	public String convert(double amount, @ShellOption("--from")  String cur1, @ShellOption("--to")
 			String cur2, @ShellOption(value = "--date", defaultValue = "")  String date) {
-		return currencyService.convert(cur1, cur2, amount, date);
+		double result = currencyService.convert(cur1, cur2, amount, date);
+		return amount + " " + cur1.toUpperCase() + " in " + cur2.toUpperCase() + " is " + result + " on " +
+				(date.isEmpty() ? LocalDate.now().toString() : date) ;
 	}
 
 	@ShellMethod(key = "from", value = "currency code that converting from")
@@ -51,19 +56,32 @@ public class ShellController {
 
 	@ShellMethod(key = "convertp", value = "pre-configured convert")
 	public String convert() {
-		return currencyService.convert(cur1, cur2, amount, date);
+		double result = currencyService.convert(cur1, cur2, amount, date);
+		return amount + " " + cur1.toUpperCase() + " in " + cur2.toUpperCase() + " is " + result + " on " +
+				(date.isEmpty() ? LocalDate.now().toString() : date);
 	}
 
 	@ShellMethod(key = "statistic", value = "calculates statistic on currency between --start and --end dates yyyy.MM.dd (/ or - also allowed)")
 	public String statistic(String cur, @ShellOption("--start")  String startDate, @ShellOption(value = "--end", defaultValue = "") String endDate) {
 		String end = endDate.isEmpty() ? LocalDate.now().toString() : endDate;
-		return cur.toUpperCase() + " statistic between " + startDate + " and " + end + "\n"
-				+ currencyService.getStatistic(cur, startDate, endDate);
+		String template = "%-17s%.3f\n%-17s%.3f\n%-17s%.3f\n%-17s%.3f\n%-17s%.3f";
+		Map<String, Double> statistics = currencyService.getStatistic(cur, startDate, endDate);
+		return cur.toUpperCase() + " statistic between " + startDate + " and " + end + "\n" +
+				String.format(template, "Min", statistics.get("min"), "Max", statistics.get("max"), "Mean",
+				statistics.get("mean"), "Dispersion", statistics.get("dispersion"), "Std. Deviation", statistics.get("std.deviation"));
 	}
 
 	@ShellMethod(key = "currencies", value = "Print list of currency codes and names")
-	public String getCurrency() {
-		return currencyService.getCurrenciesList();
+	public String currencies() {
+		List<Currency> currencies = currencyService.getCurrenciesList();
+		StringBuilder builder = new StringBuilder();
+		for (Currency currency : currencies) {
+			builder.append(currency.getCurrencyCode());
+			builder.append(" ");
+			builder.append(currency.getCurrencyName());
+			builder.append("\n");
+		}
+		return builder.toString();
 	}
 
 	@ShellMethod(key = "close", value = "Close the application")

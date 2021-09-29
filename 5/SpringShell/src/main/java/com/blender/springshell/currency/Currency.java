@@ -26,4 +26,8 @@ public class Currency {
 		DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd.MM.yyyy");
 		this.exchangeDate = LocalDate.parse(date, dateTimeFormatter);
 	}
+
+	public void setExchangeDate(LocalDate exchangeDate) {
+		this.exchangeDate = exchangeDate;
+	}
 }
